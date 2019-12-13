@@ -3,6 +3,7 @@ import sys
 import csv
 from models.Statement import Statement
 from models.StatementItem import StatementItem
+from models.StatementCollection import StatementCollection
 
 
 class StatementParser:
@@ -10,10 +11,26 @@ class StatementParser:
     def parseStatements(self, filePathList):
         statements = []
         for filePath in filePathList:
+            month = self._extractMonth(filePath)
+            year = self._extractYear(filePath)
             statementItems = self._parseStatement(filePath)
-            statement = Statement(statementItems)
+            statement = Statement(statementItems, month, year)
             statements.append(statement)
-        return statements
+        return StatementCollection(statements)
+
+    def _extractMonth(self, filePath):
+        pathItems = filePath.split('/')
+        filename = pathItems[len(pathItems)-1]
+        filenameSplit = filename.split('.')[0].split('_')
+        month = filenameSplit[len(filenameSplit) - 1]
+        return int(month)
+
+    def _extractYear(self, filePath):
+        pathItems = filePath.split('/')
+        filename = pathItems[len(pathItems)-1]
+        filenameSplit = filename.split('.')[0].split('_')
+        year = filenameSplit[len(filenameSplit) - 2]
+        return int(year)
 
     def _parseStatement(self, filePath):
         statementItems = []
@@ -22,5 +39,14 @@ class StatementParser:
             next(csvReader)  # skip the first line of headers
             for row in csvReader:
                 statementItems.append(StatementItem(
-                    date=row[0], statementType=row[1], title=row[2], info=row[3], currency=row[4], amount=row[5], feesAndTaxes=row[6], net=row[7]))
+                    date=row[0],
+                    statementType=row[1],
+                    title=row[2],
+                    info=row[3],
+                    currency=row[4],
+                    amount=float(row[5].replace('$', '')
+                                 ) if row[5] != "--" else 0,
+                    feesAndTaxes=float(row[6].replace(
+                        '$', '')) if row[6] != "--" else 0,
+                    net=float(row[7].replace('$', '')) if row[5] != "--" else 0))
         return statementItems
