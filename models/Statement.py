@@ -11,7 +11,7 @@ class Statement:
     year = None
 
     def __init__(self, statementItems, month=None, year=None):
-        self.statementItems = statementItems
+        self.statementItems = sorted(statementItems, key=lambda i: i.date)
         self.month = month
         self.year = year
 

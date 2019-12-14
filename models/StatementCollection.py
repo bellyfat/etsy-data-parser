@@ -2,13 +2,14 @@ import os
 import sys
 from functools import reduce
 from models.Statement import Statement
+from const.STATEMENT_ITEM_TYPES import STATEMENT_ITEM_TYPES
 
 
 class StatementCollection:
     statements = None
 
     def __init__(self, statements):
-        self.statements = statements
+        self.statements = sorted(statements, key=lambda s: s.month)
 
     def getStatementByMonth(self, month=None):
         if(month == None):
@@ -26,7 +27,16 @@ class StatementCollection:
 
         return Statement(itemsToReturn)
 
+    # Simply return a string list of all unique sales items
+    def getUniqueSalesItems(self):
+        salesOnlyTransactions = self.filterByType(
+            filterType=STATEMENT_ITEM_TYPES.SALE.value).statementItems
+
+        titlesOnly = list(map(lambda tx: tx.title, salesOnlyTransactions))
+        return titlesOnly
+
     # TODO - might be wrong, need to account for refunds
+
     def getAllRevenue(self):
         return reduce(lambda prev, statement: prev + statement.getAllRevenue(), self.statements, 0)
 
@@ -50,3 +60,9 @@ class StatementCollection:
 
     def getNetFromSalesLessTotalFees(self):
         return self.getNetFromSales() + self.getAllFeesAndTaxes()
+
+    def __str__(self):
+        toReturn = ""
+        for x in self.statements:
+            toReturn += str(x)
+        return toReturn

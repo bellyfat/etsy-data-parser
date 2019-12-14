@@ -4,17 +4,19 @@ import os
 import sys
 from functools import reduce
 from parsers.StatementParser import StatementParser
+from parsers.OrderItemsParser import OrderItemsParser
 from models.StatementCollection import StatementCollection
 from const.STATEMENT_ITEM_TYPES import STATEMENT_ITEM_TYPES
 from const.MONTHS import MONTHS
 
+ETSY_DATA_FOLDER_ROOT = 'etsy-data'
+
 
 def parseAllStatements():
-    etsyDataRoot = 'etsy-data'
     fileNames = filter(lambda filename: 'lock' not in filename,
                        os.listdir('./etsy-data/statements'))
     fileNamesWithPath = list(map(
-        lambda filename: etsyDataRoot + "/statements/" + filename, fileNames))
+        lambda filename: ETSY_DATA_FOLDER_ROOT + "/statements/" + filename, fileNames))
 
     statementParser = StatementParser()
     statementCollection = statementParser.parseStatements(fileNamesWithPath)
@@ -22,8 +24,20 @@ def parseAllStatements():
     return statementCollection
 
 
+def parseOrderItems():
+    filename = ETSY_DATA_FOLDER_ROOT + "/EtsySoldOrderItems2019.csv"
+
+    orderItemsParser = OrderItemsParser()
+    orderItemCollection = orderItemsParser.parseOrderItems(filename)
+
+    return orderItemCollection
+
+
 def main():
     statementCollection = parseAllStatements()
+    # TODO - orderItemCollection = parseOrderItems()
+
+    print(statementCollection)
 
     totalEtsyRevenue = statementCollection.getAllRevenue()
     etsySalesRevenue = statementCollection.getRevenueFromSales()
@@ -44,6 +58,10 @@ def main():
     print()
     print("ALL OTHER FEES:", totalFees)
     print("\tSHIPPING LABEL BALANCE:", shippingLabelBalance)
+
+    # Start temporary basket calculations
+    print("--------------------\nJUST BASKET NUMBERS\n--------------------")
+    print(statementCollection.getUniqueSalesItems())
 
 
 if __name__ == "__main__":

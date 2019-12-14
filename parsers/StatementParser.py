@@ -1,6 +1,7 @@
 import os
 import sys
 import csv
+from datetime import datetime
 from models.Statement import Statement
 from models.StatementItem import StatementItem
 from models.StatementCollection import StatementCollection
@@ -38,8 +39,12 @@ class StatementParser:
             csvReader = csv.reader(csvFile)
             next(csvReader)  # skip the first line of headers
             for row in csvReader:
+
+                recordDate = datetime.strptime(
+                    row[0], "%B %d, %Y").date()
+
                 statementItems.append(StatementItem(
-                    date=row[0],
+                    date=recordDate,
                     statementType=row[1],
                     title=row[2],
                     info=row[3],

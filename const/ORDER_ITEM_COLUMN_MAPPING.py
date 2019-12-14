@@ -1,0 +1,20 @@
+import os
+import sys
+from enum import Enum
+
+
+class ORDER_ITEM_COLUMN_MAPPING(Enum):
+    SALE_DATE = 0
+    ITEM_NAME = 1
+    QUANTITY = 3
+    PRICE = 4
+    COUPON_CODE = 5
+    COUPON_DETAILS = 6
+    DISCOUNT_AMOUNT = 7
+    SHIPPING_DISCOUNT = 8
+    ORDER_SHIPPING = 9
+    ORDER_SALES_TAX = 10
+    ITEM_TOTAL = 11
+    TRANSACTION_ID = 13
+    LISTING_ID = 14
+    ORDER_ID = 24
