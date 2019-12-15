@@ -16,6 +16,13 @@ class StatementCollection:
             raise "You need to provide a month!"
         return [l for l in self.statements if l.month == month][0]
 
+    def getAllLineItems(self):
+        itemsToReturn = []
+        for statement in self.statements:
+            for statementItem in statement.statementItems:
+                itemsToReturn.append(statementItem)
+        return itemsToReturn
+
     def filterByType(self, filterType=None):
         itemsToReturn = []
         if(filterType == None):
@@ -27,7 +34,7 @@ class StatementCollection:
 
         return Statement(itemsToReturn)
 
-    # Simply return a string list of all unique sales items
+    # Simply returns a string list of all unique sales items
     def getUniqueSalesItems(self):
         salesOnlyTransactions = self.filterByType(
             filterType=STATEMENT_ITEM_TYPES.SALE.value).statementItems
@@ -36,7 +43,6 @@ class StatementCollection:
         return titlesOnly
 
     # TODO - might be wrong, need to account for refunds
-
     def getAllRevenue(self):
         return reduce(lambda prev, statement: prev + statement.getAllRevenue(), self.statements, 0)
 

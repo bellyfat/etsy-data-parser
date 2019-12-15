@@ -9,7 +9,10 @@ from models.OrderItem import OrderItem
 
 class OrderItemsParser():
 
-    def parseOrderItems(self, filePath):
+    def parseOrderItems(self, filePath, statementCollection=None):
+        if(statementCollection == None):
+            raise "You must provide a statementCollection before you can parse orderItems (needed for linking orderItems)"
+
         orderItems = []
 
         with open(filePath) as csvFile:
@@ -56,4 +59,4 @@ class OrderItemsParser():
                     orderId=orderId
                 ))
 
-        return OrderItemCollection(orderItems)
+        return OrderItemCollection(orderItems, statementCollection.getAllLineItems())

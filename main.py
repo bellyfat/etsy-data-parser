@@ -24,18 +24,19 @@ def parseAllStatements():
     return statementCollection
 
 
-def parseOrderItems():
+def parseOrderItems(statementCollection=None):
     filename = ETSY_DATA_FOLDER_ROOT + "/EtsySoldOrderItems2019.csv"
 
     orderItemsParser = OrderItemsParser()
-    orderItemCollection = orderItemsParser.parseOrderItems(filename)
+    orderItemCollection = orderItemsParser.parseOrderItems(
+        filename, statementCollection)
 
     return orderItemCollection
 
 
 def main():
     statementCollection = parseAllStatements()
-    # TODO - orderItemCollection = parseOrderItems()
+    orderItemCollection = parseOrderItems(statementCollection)
 
     print(statementCollection)
 
@@ -60,8 +61,8 @@ def main():
     print("\tSHIPPING LABEL BALANCE:", shippingLabelBalance)
 
     # Start temporary basket calculations
-    print("--------------------\nJUST BASKET NUMBERS\n--------------------")
-    print(statementCollection.getUniqueSalesItems())
+    # print("--------------------\nJUST BASKET NUMBERS\n--------------------")
+    # print(statementCollection.getUniqueSalesItems())
 
 
 if __name__ == "__main__":

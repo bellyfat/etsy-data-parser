@@ -1,5 +1,6 @@
 import os
 import sys
+from const.STATEMENT_ITEM_TYPES import STATEMENT_ITEM_TYPES
 
 
 class OrderItem():
@@ -14,10 +15,13 @@ class OrderItem():
     orderShipping = None
     orderSalesTax = None
     itemTotal = None
-    transactionId = None  # important
-    listingId = None  # important
-    orderId = None  # important
 
+    # Important Fields
+    transactionId = None
+    listingId = None
+    orderId = None
+
+    # NOTE - OrderItems should have direct links to their unique lineItems
     statementLineItems = None
 
     def __init__(
@@ -50,6 +54,38 @@ class OrderItem():
         self.transactionId = transactionId
         self.listingId = listingId
         self.orderId = orderId
+
+    def hasListingFeeLineItem(self):
+        if(self.statementLineItems is None or len(self.statementLineItems) == 0):
+            return False
+
+        for lineItem in self.statementLineItems:
+            if lineItem.statementType == STATEMENT_ITEM_TYPES.LISTING.value:
+                return True
+
+        return False
+
+    def hasMultiQuantityListingFeeLineItem(self):
+        if(self.statementLineItems is None or len(self.statementLineItems) == 0):
+            return False
+
+        for lineItem in self.statementLineItems:
+            # LISTING item types WITH transactionId are multi-quantity Listing Fees
+            if lineItem.statementType == STATEMENT_ITEM_TYPES.LISTING.value and lineItem.transactionId != None:
+                return True
+
+        return False
+
+    def hasOnlyMultiQuantityListFee(self):
+        if(self.statementLineItems is None or len(self.statementLineItems) == 0):
+            return False
+
+        for lineItem in self.statementLineItems:
+            # LISTING item types WITHOUT transactionId are NOT multi-quantity Listing Fees
+            if lineItem.statementType == STATEMENT_ITEM_TYPES.LISTING.value and lineItem.transactionId == None:
+                return False
+
+        return True
 
     def addStatementLineItem(self, lineItem):
         if self.statementLineItems == None:
