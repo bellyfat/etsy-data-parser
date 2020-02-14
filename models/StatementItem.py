@@ -46,7 +46,7 @@ class StatementItem:
             self.listingId = self.info.replace(' ', '').split(':')[1]
 
     def _printerFormat(self, variable):
-        return ("   {}                     ".format(str(variable)[:25]))[:25]
+        return ("   {}                     ".format(str(variable)[:20]))[:20]
 
     def __str__(self):
         return "{}{}{}{}{}{}{}{}{}".format(self._printerFormat(self.date.strftime("%b %d, %Y")), self._printerFormat(self.statementType), self._printerFormat(self.title), self._printerFormat(self.info), self._printerFormat(self.currency), self._printerFormat(self.amount), self._printerFormat(self.feesAndTaxes), self._printerFormat(self.collectedSalesTax), self._printerFormat(self.net))

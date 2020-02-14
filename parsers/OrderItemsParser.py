@@ -9,7 +9,7 @@ from models.OrderItem import OrderItem
 
 class OrderItemsParser():
 
-    def parseOrderItems(self, filePath, statementCollection=None):
+    def parseOrderItems(self, filePath, statementCollection=None, disableWarnings=False):
         if(statementCollection == None):
             raise "You must provide a statementCollection before you can parse orderItems (needed for linking orderItems)"
 
@@ -59,4 +59,4 @@ class OrderItemsParser():
                     orderId=orderId
                 ))
 
-        return OrderItemCollection(orderItems, statementCollection.getAllLineItems())
+        return OrderItemCollection(orderItems, statementCollection.getAllLineItems(), disableWarnings=disableWarnings)

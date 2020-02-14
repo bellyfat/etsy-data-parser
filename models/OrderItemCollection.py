@@ -1,5 +1,6 @@
 import os
 import sys
+import copy
 
 """
     NOTE: Needed to create some hash tables so we can reference orderItems by their 
@@ -9,6 +10,8 @@ import sys
 
 class OrderItemCollection():
     orderItems = []
+    allStatementLineItems = None
+    disableWarnings = False
 
     """ Datastructs to map unique IDs to specific orders """
 
@@ -19,12 +22,37 @@ class OrderItemCollection():
 
     transactionIdToOrderDict = {}
 
-    def __init__(self, orderItems, allStatementLineItems=None):
+    def __init__(self, orderItems, allStatementLineItems=None, disableWarnings=False):
         if(allStatementLineItems == None):
             raise "You must provide all line items for all statements, so orderItems can be linked to corresponding lineItems"
+        self.disableWarnings = disableWarnings
+        self.allStatementLineItems = allStatementLineItems
         self.orderItems = orderItems
         self._initHashtables()
-        self._linkLineItemsToOrderItems(allStatementLineItems)
+        self._linkLineItemsToOrderItems()
+
+    def getAllLineItems(self):
+        toReturn = []
+        for orderItem in self.orderItems:
+            if orderItem.statementLineItems is None:
+                continue
+
+            for lineItem in orderItem.statementLineItems:
+                toReturn.append(lineItem)
+        return toReturn
+
+    # NOTE - Filter-out the orderItems if the orderItem's name contains param: {itemNameContains}
+    def filterOutLineItemsByName(self, itemNameContains=""):
+        differenceList = []
+        for orderItem in self.orderItems:
+            if itemNameContains.upper() not in orderItem.itemName.upper():
+                if orderItem.statementLineItems == None:
+                    continue
+                for lineItem in orderItem.statementLineItems:
+                    differenceList.append(lineItem)
+
+        differenceList = sorted(differenceList, key=lambda i: i.date)
+        return differenceList
 
     def _initHashtables(self):
         self._initOrderIdHashTable()
@@ -45,16 +73,16 @@ class OrderItemCollection():
         for item in self.orderItems:
             self.transactionIdToOrderDict[item.transactionId] = item
 
-    def _linkLineItemsToOrderItems(self, statementLineItems):
+    def _linkLineItemsToOrderItems(self):
 
         # Stores the Listing Items we could not link to an Order (These were most likely listing fees that got paid early on, but EVENTUALLY sold an order later)
         unlinkedListingItems = []
 
-        for statementItem in statementLineItems:
+        for statementItem in self.allStatementLineItems:
 
             # Link by TransactionId
             if(statementItem.transactionId != None):
-                if(statementItem.transactionId not in self.transactionIdToOrderDict):
+                if(not self.disableWarnings and statementItem.transactionId not in self.transactionIdToOrderDict):
                     print("WARNING: Couldn't find an orderItem which links to statementLineItem having transactionId: {}".format(
                         statementItem.transactionId))
                     print(statementItem)
@@ -110,7 +138,7 @@ class OrderItemCollection():
 
             # Link by OrderId
             if(statementItem.orderId != None):
-                if(statementItem.orderId not in self.orderIdToOrderDict):
+                if(not self.disableWarnings and statementItem.orderId not in self.orderIdToOrderDict):
                     print("WARNING: Couldn't find an orderItem which links to statementLineItem having orderId: {}".format(
                         statementItem.orderId))
                     print(statementItem)
@@ -123,6 +151,9 @@ class OrderItemCollection():
 
     # Try to resolve Listing Item linking errors. If we cannot resolve, warn the user
     def _tryResolveListingItemLinkErrors(self, unlinkedListingItems):
+
+        if self.disableWarnings:
+            return
 
         if(unlinkedListingItems == None or len(unlinkedListingItems) == 0):
             return

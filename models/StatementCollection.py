@@ -8,6 +8,7 @@ from const.STATEMENT_ITEM_TYPES import STATEMENT_ITEM_TYPES
 class StatementCollection:
     statements = None
 
+    # TODO - Also sort by year
     def __init__(self, statements):
         self.statements = sorted(statements, key=lambda s: s.month)
 
@@ -22,6 +23,18 @@ class StatementCollection:
             for statementItem in statement.statementItems:
                 itemsToReturn.append(statementItem)
         return itemsToReturn
+
+    # NOTE - parameter taks a list of line items. Method returns all stored lineItems in this object less the lineItems passed.
+    def getLineItemsDifference(self, lineItemsToRemove=[]):
+        # First, create a hashset of the passed lineItems for quick lookup
+        lineItemDifference = []
+        lineItemsToRemoveSet = set(lineItemsToRemove)
+
+        for internalLineItem in self.getAllLineItems():
+            if not internalLineItem in lineItemsToRemoveSet:
+                lineItemDifference.append(internalLineItem)
+
+        return lineItemDifference
 
     def filterByType(self, filterType=None):
         itemsToReturn = []
