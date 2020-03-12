@@ -55,6 +55,26 @@ class StatementCollection:
         titlesOnly = list(map(lambda tx: tx.title, salesOnlyTransactions))
         return titlesOnly
 
+    def getTransactionBreakdownByType(self):
+        breakdownDict = dict()
+        for statement in self.statements:
+            for statementItem in statement.statementItems:
+                if statementItem.statementType not in breakdownDict:
+                    breakdownDict[statementItem.statementType] = {
+                        'AMOUNT': 0, 'FEES & TAXES': 0, 'COLLECTED SALES TAX': 0, 'NET': 0}
+                breakdownDict[statementItem.statementType]['AMOUNT'] += statementItem.amount
+                breakdownDict[statementItem.statementType]['FEES & TAXES'] += statementItem.feesAndTaxes
+                breakdownDict[statementItem.statementType]['COLLECTED SALES TAX'] += statementItem.collectedSalesTax
+                breakdownDict[statementItem.statementType]['NET'] += statementItem.net
+
+                if statementItem.statementType == 'Deposit':
+                    depositAmount = float(statementItem.title.replace(
+                        ' sent to your bank account', '').replace('$', '').replace(' ', ''))
+                    breakdownDict[statementItem.statementType]['AMOUNT'] += depositAmount
+                    breakdownDict[statementItem.statementType]['NET'] += depositAmount
+
+        return breakdownDict
+
     # TODO - might be wrong, need to account for refunds
     def getAllRevenue(self):
         return reduce(lambda prev, statement: prev + statement.getAllRevenue(), self.statements, 0)

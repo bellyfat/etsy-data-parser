@@ -35,10 +35,21 @@ def parseOrderItems(statementCollection=None, disableWarnings=False):
     return orderItemCollection
 
 
+def prettyPrintStatementBreakdown(statementBreakdown):
+    for itemType in statementBreakdown:
+        amounts = statementBreakdown[itemType]
+        print("\t" + itemType)
+        for amountType in amounts:
+            amountValue = amounts[amountType]
+            print("\t\t" + amountType + ': ' + str(amountValue))
+
+
 def main():
     statementCollection = parseAllStatements()
     orderItemCollection = parseOrderItems(
         statementCollection, disableWarnings=True)
+
+    statementBreakdown = statementCollection.getTransactionBreakdownByType()
 
     print(statementCollection)
 
@@ -59,12 +70,14 @@ def main():
     print("SALES TAX COLLECTED:", etsySalesTaxCollected)
     print("SALES REVENUE LESS SALES FEES:", revenueLessSalesFees)
     print()
-    print("ALL OTHER FEES:", totalFees)
-    print("\tSHIPPING LABEL BALANCE:", shippingLabelBalance)
+    print("STATEMENT BREAKDOWN:")
+    prettyPrintStatementBreakdown(statementBreakdown)
+    """ print("ALL OTHER FEES:", totalFees)
+    print("\tSHIPPING LABEL BALANCE:", shippingLabelBalance) """
 
     # NOTE - Start figuring out basket difference
 
-    orderItemCollectionLessBaskets = orderItemCollection.filterOutLineItemsByName(
+    """ orderItemCollectionLessBaskets = orderItemCollection.filterOutLineItemsByName(
         itemNameContains="cotton rope")
 
     # Create a dummy statement to house our numbers less baskets
@@ -88,7 +101,7 @@ def main():
     print("\tSHIPPING LABEL BALANCE:",
           dummyStatementLessBaskets.getShippingLabelBalance())
 
-    pass
+    pass """
 
 
 if __name__ == "__main__":
